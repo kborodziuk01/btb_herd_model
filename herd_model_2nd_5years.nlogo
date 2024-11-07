@@ -53,7 +53,7 @@ robots-own [
   used-this-hour]
 
 to setup
-  ;no-display
+  no-display
   ca ;clear all
 
 
@@ -61,10 +61,10 @@ to setup
   ;####  Time Setup  ###
   ;#####################
 
-  set current-time time:create "2009-12-01 00:00:00" ; start date
+  set current-time time:create "2015-05-24 00:00:00" ; start date
   set current-hour 0
 
-  set events-list read-event-csv "events.csv"
+  set events-list read-event-csv "events2.csv"
 
   set current-event item 0 events-list
 
@@ -104,6 +104,7 @@ to setup
 
   set l_food_patches patches with [pxcor = -1 and pycor > py_lim]  ; create an agent set of all patches at x coordinate range -1 - 1. a vertical line down the middle
   set r_food_patches patches with [pxcor =  1 and pycor > py_lim]  ; create an agent set of all patches at x coordinate range -1 - 1. a vertical line down the middle
+
   set l_food_place patches with [pxcor = -2 and pycor > py_lim]
   set r_food_place patches with [pxcor = 2 and pycor > py_lim]
 
@@ -162,7 +163,8 @@ to setup
   ;####  Cows Setup  ###
   ;#####################
 
-  spawn_cows num_cows false 0
+  spawn_cows num_cows - num_young false 2000
+  spawn_cows num_young true 360
 
 
   ask n-of num_infected_init cows[
@@ -201,8 +203,8 @@ to spawn_cows [ num_cows_create age-random? age-var]
     set time_to_stop_milk  random 300
 
     ifelse age-random? = true
-    [set age random 2000]
-    [set age 0]
+    [set age random age-var]
+    [set age age-var]
   ]
 end
 
@@ -394,7 +396,7 @@ to go
     let i_cow count  cows with [status = "Infectious"]
 
 
-    ;if e_cow = 0 and i_cow = 0[stop]
+    if e_cow = 0 and i_cow = 0[stop]
     if ticks >= 2000 [ stop]
 
 
@@ -477,6 +479,7 @@ to feed
     if food_amount > 100[set food_amount 100]
   ]
 
+
 end
 
 to cow_milking
@@ -539,23 +542,23 @@ to cow_food_stuff
 
   if hunger >= hunger_treshold
   [
-    let p 0
+   let p 0
 
-    ifelse side = "left"
+  ifelse side = "left"
     [ set p one-of l_food_place]
     [ set p one-of r_food_place]
+
+
 
     move-to p
 
     set hunger hunger - food_per_h
     ask p [ set food_amount food_amount - 40]
-
     ifelse side = "left"
     [move-to one-of l-mov]
     [move-to one-of r-mov ]
 
   ]
-
 
 
 
@@ -701,8 +704,8 @@ SLIDER
 num_cows
 num_cows
 200
-300
-212.0
+600
+566.0
 1
 1
 NIL
@@ -725,83 +728,6 @@ NIL
 NIL
 1
 
-MONITOR
-1188
-216
-1274
-261
-NIL
-current-hour
-17
-1
-11
-
-MONITOR
-1132
-216
-1189
-261
-Day
-ticks
-17
-1
-11
-
-MONITOR
-1048
-216
-1132
-261
-Year
-ticks / 365
-17
-1
-11
-
-MONITOR
-1164
-82
-1450
-127
-NIL
-current-event
-17
-1
-11
-
-MONITOR
-1164
-128
-1450
-173
-NIL
-current-time
-17
-1
-11
-
-MONITOR
-1047
-10
-1126
-55
-NIL
-count cows
-17
-1
-11
-
-MONITOR
-1165
-14
-1375
-59
-NIL
-mean [milking_need] of cows
-17
-1
-11
-
 SLIDER
 103
 49
@@ -811,7 +737,7 @@ num_infected_init
 num_infected_init
 0
 50
-3.0
+2.0
 1
 1
 NIL
@@ -871,7 +797,7 @@ food_from_milker
 food_from_milker
 0
 25
-15.0
+16.0
 1
 1
 NIL
@@ -886,7 +812,7 @@ hunger_per_h
 hunger_per_h
 0
 50
-14.0
+15.0
 1
 1
 NIL
@@ -901,7 +827,7 @@ btb_shed
 btb_shed
 0
 15
-0.0
+3.0
 1
 1
 NIL
@@ -916,7 +842,7 @@ btb_decay
 btb_decay
 0
 2
-2.0
+0.7
 0.1
 1
 NIL
@@ -931,7 +857,7 @@ growth
 growth
 0
 4
-6.5
+2.2
 0.1
 1
 NIL
@@ -969,17 +895,6 @@ NIL
 NIL
 1
 
-MONITOR
-1385
-216
-1498
-261
-NIL
-total_concentration
-17
-1
-11
-
 BUTTON
 0
 177
@@ -996,39 +911,6 @@ NIL
 NIL
 NIL
 1
-
-MONITOR
-1047
-64
-1143
-109
-Exposed Cows
-count cows with [ status = \"Exposed\"]
-17
-1
-11
-
-MONITOR
-1047
-113
-1136
-158
-Healthy Cows
-count cows with [ status = \"Healthy\"]
-17
-1
-11
-
-MONITOR
-1047
-160
-1149
-205
-Infectious Cows
-count cows with [ status = \"Infectious\"]
-17
-1
-11
 
 SLIDER
 266
@@ -1060,17 +942,6 @@ Skin_test_SP
 NIL
 HORIZONTAL
 
-MONITOR
-1280
-216
-1383
-261
-Days until Test
-183 - days_since_test
-17
-1
-11
-
 SWITCH
 271
 204
@@ -1091,7 +962,7 @@ inhale_factor
 inhale_factor
 0
 10
-5.0
+6.0
 1
 1
 NIL
@@ -1130,6 +1001,21 @@ NIL
 NIL
 NIL
 1
+
+SLIDER
+100
+105
+272
+138
+num_young
+num_young
+0
+100
+30.0
+1
+1
+NIL
+HORIZONTAL
 
 @#$#@#$#@
 ## WHAT IS IT?
